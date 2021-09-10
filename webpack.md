@@ -75,6 +75,73 @@ compiler.hook.make.tapAsync
 
 
 
+##### 热更新(局部自动刷新)
+
+###### 配置
+
+```js
+plugins: [
+new webpack.HotModuleReplacementPlugin()
+]
+```
+
+```js
+devServer: {
+    hot: true
+}
+```
+
+```js
+// 入口文件配置
+if(module.hot) {
+    module.hot.accept()
+}
+```
+
+###### 更新流程
+
+1.浏览器和webpack通过websocket实现通信
+
+2.修改文件时产生两个文件，一个json文件，一个js文件。json文件记录hash值和修改的模块，js记录修改的代码。
+
+3.浏览器更新时通过hash值获取最新代码，再次运行，覆盖旧代码。
+
+###### 名词解释
+
+webpack-complier： webpack编译器
+
+HMR serve：将热更新的文件输出给HMR Runtime
+
+Bunble Server：提供文件在浏览器的访问，提供localhost访问服务
+
+HMR Runtime：打包阶段注入到浏览器的bundle.js，可以使用websocket与服务器建立连接，当收到指令后，就对文件进行更新
+
+bundle.js：构建输出的文件
+
+###### 执行阶段
+
+启动阶段
+
+webpack-compiler ---------------> bundle server（浏览器可访问）
+
+![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0a4f10eb6de943b88f7a3313d8aa5795~tplv-k3u1fbpfcp-watermark.awebp)
+
+热更新阶段
+
+webpack-compiler ------> HMR serve ---文件变化--> HMR Runtime(websocket)更新代码
+
+###### 总结
+
+1.HRM Runtime 通过插件注入到 chunk 中
+
+2.开启了bundle server 和 HMR server (与HMR Runtime通信)
+
+3.编译完成时通过compiler.hooks.done通知客户端更新
+
+4.客户端调用module.hot.check发起http请求获取新资源并刷新页面（获取json和js文件）
+
+
+
 # babel
 
 核心功能：将ES6+的新语法转为ES5，使低版本浏览器可以执行。
