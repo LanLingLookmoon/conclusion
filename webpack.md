@@ -77,6 +77,10 @@ compiler.hook.make.tapAsync
 
 ##### 热更新(局部自动刷新)
 
+###### 原理
+
+基于WDS的模块热替换
+
 ###### 配置
 
 ```js
