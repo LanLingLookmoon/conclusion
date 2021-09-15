@@ -4,6 +4,14 @@
 
 核心功能：将图片、css、js等进行转译、组合、拼接、生成js格式的bundler文件。
 
+其他功能：
+
+1.模块打包：将不同的文件整合到一起，保证他们的有序引用。
+
+2.编译兼容：将ES6+的新语法转为ES5，使低版本浏览器可以兼容。
+
+3.能力扩展：通过plugin机制，可以实现按需加载，代码压缩等功能。
+
 ##### 名词解释
 
 <ul>
@@ -77,6 +85,10 @@ compiler.hook.make.tapAsync
 
 ##### 热更新(局部自动刷新)
 
+###### 原理
+
+基于WDS的模块热替换
+
 ###### 配置
 
 ```js
@@ -139,6 +151,63 @@ webpack-compiler ------> HMR serve ---文件变化--> HMR Runtime(websocket)更�
 3.编译完成时通过compiler.hooks.done通知客户端更新
 
 4.客户端调用module.hot.check发起http请求获取新资源并刷新页面（获取json和js文件）
+
+##### sourceMap
+
+打包后的代码映射回源码的技术，需要浏览器支持。并非webpack独有，jquery也支持。
+
+映射文件： .map
+
+##### Loader编写思路
+
+loader作用：将非js文件转为js格式
+
+配置：
+
+1.支持以数组形式配置多个，用按顺序进行链式调用，前一个loader返回作为下一个loader入参。
+
+2.this由webpack提供，指向loaderContext和loader-runner。
+
+规范：
+
+1.返回值必须是标准js字符串以保证loader可链式调用。
+
+2.遵循单一职责，只关心loader输出及对应输出。
+
+```js
+module.exports = {
+    module: {
+        rules: [
+            {
+                // 匹配规则
+                test: /^your-regExp$/,
+                // 预处理器
+                use:[
+                    {
+                        loader: 'loader-name-A'
+                    },{
+                        loader: 'loader-name-B'
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
+##### Plugin编写思路
+
+作用：功能扩展。监听运行过程中的事件，在特定阶段执行插件任务，从而实现自己的功能。
+
+compiler暴露webpack整个生命周期的钩子，compilation暴露与模块和依赖有关的事件钩子。
+
+规范：
+
+1.插件必须是一个函数或者是一个包含apply的对象。
+
+2.传给compiler和compilation的对象是同一个引用，若某个插件对他们进行了修改会影响后续插件。
+
+3.异步事件需要在插件处理完后调用回调函数通知webpack进入下个阶段，不然会卡住。
 
 
 
