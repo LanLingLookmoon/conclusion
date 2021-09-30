@@ -39,17 +39,23 @@ d.开始编译：执行compiler对象的run方法
 
 e.确定入口：根据配置中的entry找出所有的入口文件，调用compilition.addEntry将入口文件转为<b>dependence对象</b>（依赖关系）
 
+文件转dependce
+
 ###### 2.构建阶段（module）
 
 1.编译模块：根据entey对应的dependence创建module对象，调用loader将module转译为标准js内容，用JS解释器将内容转为AST对象。递归本步骤直至所有文件都经过本步骤处理。
 
 2.完成模块编译：获取上一步每个模块被翻译的内容以及依赖关系图。
 
+dependce转module
+
 ###### 3.生成阶段（chunks）
 
 1.输出资源：根据依赖关系，组装成一个个包含多个模块的chunk。可修改输出内容。
 
 2.写入文件系统：不可修改
+
+module转chunks
 
 ##### plugin
 
@@ -208,6 +214,66 @@ compiler暴露webpack整个生命周期的钩子，compilation暴露与模块和
 2.传给compiler和compilation的对象是同一个引用，若某个插件对他们进行了修改会影响后续插件。
 
 3.异步事件需要在插件处理完后调用回调函数通知webpack进入下个阶段，不然会卡住。
+
+
+
+##### Tapable
+
+webpack内部的流程管理工具，主要负责串联插件，完善时间执行流程。·
+
+###### 同步钩子
+
+###### 异步钩子
+
+###### 具体实现
+
+1.实例化
+
+2.用tap等方法回调函数
+
+3.用call调用
+
+4.编译
+
+
+
+##### 缺陷
+
+1.构建花时间太长
+
+2.打包体积过大
+
+##### 优化方案
+
+###### 减少不必要的loader使用
+
+1.用include或exclude避免不必要的转译
+
+```js
+exclude: /(node_modules|bower_components)/
+```
+
+2.开启缓存将转译结果缓存至文件系统
+
+```js
+loader: 'babel-loader?cacheDirectory=true'
+```
+
+3.用dllplugin处理第三方库
+
+dllplugin处理的第三方库会被单独打包到一个文件中，不会随着业务代码一起被重新打包，只有当依赖关系发生变化时才会重新打包。
+
+4.happypack将loader转为多线程
+
+###### 压缩打包体积
+
+1.利用tree-shaking去掉冗余代码
+
+2.按需加载
+
+核心方法：require.ensure()
+
+3.gzip压缩
 
 
 
