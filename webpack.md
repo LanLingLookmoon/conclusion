@@ -51,7 +51,7 @@ dependce转module
 
 ###### 3.生成阶段（chunks）
 
-1.输出资源：根据依赖关系，组装成一个个包含多个模块的chunk。可修改输出内容。
+1.输出资源：根据依赖关系，将module组装成chunk。可修改输出内容。
 
 2.写入文件系统：不可修改
 
@@ -85,7 +85,7 @@ compiler.hook.make.tapAsync
 
 
 
-生成配置参数 -----> 生成compiler对象 ---plugin生成配置环境---> compiler.run ---entry找到入口文件--> dependence --------->   依赖关系图 ---------> module ---loder---> js ------> ast对象 -- 递归所有的ast对象，根据 import/require----> chunk --配置的路径和文件名---> 文件列表 ----> 文件  
+生成配置参数 -----> 生成compiler对象 ---plugin生成配置环境---> compiler.run ---entry找到入口文件 --compilition.addentry--> dependence --------->  module ---loder---> js ------> ast对象 -- 递归所有的ast对象 -----> 依赖关系图，根据 import/require----> chunk --配置的路径和文件名---> 文件列表 ----> 文件  
 
 
 
