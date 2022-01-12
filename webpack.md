@@ -89,6 +89,19 @@ compiler.hook.make.tapAsync
 
 
 
+##### 文件监听(不会自动刷新)
+
+###### 启动方式
+
+1. 启动命令后加   --watch
+2. 在webpack.congin.js在
+
+###### 原理
+
+轮询文件最后更新时间，若某个文件的时间发生了变化则先缓存，等待下次agreegateTimeout后执行。
+
+
+
 ##### 热更新(局部自动刷新)
 
 ###### 原理
@@ -201,6 +214,26 @@ module.exports = {
 }
 ```
 
+步骤：
+
+1.写一个带返回值的函数。
+
+   调用方式：
+
+​    a. loader 中用path.resolve引入路径
+
+​    b. 直接输入文件名
+
+2.异步设置 const callback = this.async()
+
+3.传参：使用loader-utils
+
+4.处理二进制文件：export.raw = true
+
+5.禁止webpack缓存：this.cacheable(false)
+
+6.本地loader导入：借助npm link或者resolveLoader导入
+
 ##### Plugin编写思路
 
 作用：功能扩展。监听运行过程中的事件，在特定阶段执行插件任务，从而实现自己的功能。
@@ -215,7 +248,15 @@ compiler暴露webpack整个生命周期的钩子，compilation暴露与模块和
 
 3.异步事件需要在插件处理完后调用回调函数通知webpack进入下个阶段，不然会卡住。
 
+步骤：
 
+1.编写类。
+
+2.加入apply()回调，并且挂载webpack的事件钩子。
+
+3.在apply()里面处理特定数据。
+
+4.调用webpack回调。
 
 ##### Tapable
 
@@ -293,13 +334,19 @@ dllplugin处理的第三方库会被单独打包到一个文件中，不会随�
 
 ###### 解析
 
+将代码转为AST
+
 可以使用语法插件（能够解析更多语法），内部解析库为babylon
 
 ###### 转换
+
+访问AST节点生成新的AST
 
 tip：babel不具备转换功能，转换功能再plugin中，当我们不配置插件时，输出内容和输入相同。
 
 添加转译插件，对源码进行转译并输出。
 
 ###### 生成
+
+以新的AST为基础生成代码
 
